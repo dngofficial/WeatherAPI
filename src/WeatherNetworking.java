@@ -12,6 +12,7 @@ public class WeatherNetworking {
     private String baseUrl;
     private String apiKey;
 
+
     public WeatherNetworking()
     {
         baseUrl = "http://api.weatherapi.com/v1";
@@ -35,19 +36,17 @@ public class WeatherNetworking {
         }
     }
 
-    public void parseForecast(String json)
+    public CurrentWeather parseCurrent(String json)
     {
         JSONObject jsonObj = new JSONObject(json);
-        JSONObject currentObj = jsonObj.getJSONObject("forecast");
-        JSONArray forecaseArr = currentObj.getJSONArray("forecastday");
+        JSONObject currentObj = jsonObj.getJSONObject("current");
+        JSONObject condition1 = currentObj.getJSONObject("condition");
 
-        for (int i = 0; i < forecaseArr.length(); i++)
-        {
-            JSONObject forecast = forecaseArr.getJSONObject(i);
-            JSONObject dayObj = forecast.getJSONObject("day");
-            double minTemp = dayObj.getDouble("mintemp_f");
-            double maxTemp = dayObj.getDouble("maxtemp_f");
-            System.out.println("Min temp: " + minTemp + ", Max temp = " + maxTemp);
-        }
+        double currentF = currentObj.getDouble("temp_f");
+        double currentC = currentObj.getDouble("temp_c");
+       String filePath = condition1.getString("icon");
+        String condition = condition1.getString("text");
+
+        return new CurrentWeather(currentF, currentC, filePath, condition);
     }
 }
