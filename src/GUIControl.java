@@ -1,12 +1,6 @@
 // lots of classes get used here!
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JTextArea;
-import javax.swing.JButton;
+import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Image;
 import java.awt.Color;
@@ -18,6 +12,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
+
 // this class implements ActionListener interface, which allows for interactivity with JButtons
 public class GUIControl implements ActionListener
 {
@@ -25,6 +20,9 @@ public class GUIControl implements ActionListener
     // so we add them as instance variables
     private JTextArea weatherInfo;
     private JTextField weatherEntryField;
+    private JFrame frame;
+    private JPanel displayPanel;
+
     private CurrentWeather currentWeather;
     private WeatherNetworking weatherNetworking;
 
@@ -46,15 +44,9 @@ public class GUIControl implements ActionListener
     private void setupGui()
     {
         //Creating a Frame
-        JFrame frame = new JFrame("Current Weather");
+         frame = new JFrame("Current Weather");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // ends program when you hit the X
 
-        // Creating an image from a jpg file stored in the src directory
-//        ImageIcon image = new ImageIcon("src/download.jpg");
-//        Image imageData = image.getImage(); // transform it
-//        Image scaledImage = imageData.getScaledInstance(200, 200, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
-//        image = new ImageIcon(scaledImage);  // transform it back
-//        JLabel pictureLabel = new JLabel(image);
         JLabel welcomeLabel = new JLabel("Current Weather");
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 70));
         welcomeLabel.setForeground(Color.pink);
@@ -69,32 +61,41 @@ public class GUIControl implements ActionListener
         weatherEntryField = new JTextField(7); // accepts up to 7 characters
         JButton submitButton = new JButton("Submit");
         JButton clearButton = new JButton("Clear");
+        JCheckBox checkbox = new JCheckBox("Enable F");
         entryPanel.add(zipCodeLabel);
         entryPanel.add(weatherEntryField);
         entryPanel.add(submitButton);
         entryPanel.add(clearButton);
+        entryPanel.add(checkbox);
 
         // bottom panel w/ placeholder
+         displayPanel = new JPanel();
         ImageIcon image = new ImageIcon("src/placeholder.jpg");
         Image imageData = image.getImage(); // transform it
         Image scaledImage = imageData.getScaledInstance(100, 100, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
         image = new ImageIcon(scaledImage);  // transform it back
         JLabel pictureLabel = new JLabel(image);
+        displayPanel.add(pictureLabel);
+
+
 
 
         //Adding Components to the frame
         frame.add(logoWelcomePanel, BorderLayout.NORTH);
         frame.add(entryPanel, BorderLayout.CENTER);
-        frame.add(entryPanel, BorderLayout.SOUTH);
+        frame.add(displayPanel, BorderLayout.SOUTH);
 
         // PART 2 -- SET UP EVENT HANDLING
         //setting up buttons to use ActionListener interface and actionPerformed method
         submitButton.addActionListener(this);
         clearButton.addActionListener(this);
+        checkbox.addActionListener(this);
 
         // showing the frame
         frame.pack();
         frame.setVisible(true);
+
+
     }
 
     // private helper method to load the Now Playing
@@ -140,7 +141,6 @@ public class GUIControl implements ActionListener
 //
 //        if (detail.getTitle().equals("Morbius"))
 //        {
-//            info += "\n\n #MORBIUS SWEEP BITCH MORBIUS SWEEP BITCH MORBIUS SWEEP BITCH";
 //        }
 //
 //        movieInfo.setText(info);
@@ -165,33 +165,59 @@ public class GUIControl implements ActionListener
 //    // gets clicked; we need code to differentiate which
 //    // button sent was clicked, so we use the text of the
 //    // button ("Send" or "Reset") to determine this
-//    public void actionPerformed(ActionEvent e) {
-//        JButton button = (JButton) (e.getSource());  // cast source to JButton
-//        String text = button.getText();
-//
-//        if (text.equals("Send"))
-//        {
-//            // obtain the numerical value that the user typed into the text field
-//            // (getTest() returns a string) and convert it to an int
-//            String selectedMovieNum = movieEntryField.getText();
-//            int movieNumInt = Integer.parseInt(selectedMovieNum);
-//
-//            // obtain the movie in the nowPlaying arraylist that the number they
-//            // typed in corresponds to
-//            int movieIdx = movieNumInt - 1;
-//            Movie selectedMovie = nowPlaying.get(movieIdx);
-//
-//
-//            // call private method to load movie info for that Movie object
-//            loadMovieInfo(selectedMovie);
-//        }
-//
-//        // if user clicked "Reset" button, set the text field back to empty string
-//        // and load the Now Playing list again
-//        else if (text.equals("Reset"))
-//        {
-//            weatherEntryField.setText("");
-//            loadNowPlaying();
-//        }
-//    }
+    public void actionPerformed(ActionEvent e) {
+        JButton button = (JButton) (e.getSource());  // cast source to JButton
+        String text = button.getText();
+
+        if (text.equals("Submit"))
+        {
+            // obtain the numerical value that the user typed into the text field
+            // (getTest() returns a string) and convert it to an int
+            String zipCode = weatherEntryField.getText();
+
+            WeatherNetworking api = new WeatherNetworking();
+            CurrentWeather currentWeather = api.parseCurrent(api.makeAPICallForForecast(zipCode));
+            double currentF = currentWeather.getCurrentF();
+            double currentC = currentWeather.getCurrentC();
+            String filePath = currentWeather.getFilePath();
+            String condition = currentWeather.getCondition();
+
+            System.out.println(filePath);
+
+
+
+            JLabel temperature = new JLabel("Temperature: " + currentC);
+            JLabel condition1 = new JLabel("Condition: " + condition);
+
+            URL imageURL = new URL(filePath);
+            BufferedImage image1 = ImageIO.read(imageURL);
+
+            ImageIcon image = new ImageIcon(image1);
+            Image imageData = image.getImage(); // transform it
+            Image scaledImage = imageData.getScaledInstance(100, 100, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+            image = new ImageIcon(scaledImage);  // transform it back
+            JLabel pictureLabel = new JLabel(image);
+            displayPanel.add(temperature);
+            displayPanel.add(condition1);
+            displayPanel.add(pictureLabel);
+
+
+
+
+
+            displayPanel.invalidate();
+            displayPanel.validate();
+
+
+
+        }
+
+        // if user clicked "Reset" button, set the text field back to empty string
+        // and load the Now Playing list again
+        else if (text.equals("Clear"))
+        {
+            weatherEntryField.setText("");
+
+        }
+    }
 }
