@@ -9,7 +9,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 
 
@@ -22,6 +27,9 @@ public class GUIControl implements ActionListener
     private JTextField weatherEntryField;
     private JFrame frame;
     private JPanel displayPanel;
+    private JLabel temperature;
+    private JLabel condition;
+
 
     private CurrentWeather currentWeather;
     private WeatherNetworking weatherNetworking;
@@ -70,11 +78,15 @@ public class GUIControl implements ActionListener
 
         // bottom panel w/ placeholder
          displayPanel = new JPanel();
-        ImageIcon image = new ImageIcon("src/placeholder.jpg");
-        Image imageData = image.getImage(); // transform it
+         temperature = new JLabel("temp");
+         condition = new JLabel("condition");
+        ImageIcon placeholder = new ImageIcon("src/placeholder.jpg");
+        Image imageData = placeholder.getImage(); // transform it
         Image scaledImage = imageData.getScaledInstance(100, 100, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
-        image = new ImageIcon(scaledImage);  // transform it back
-        JLabel pictureLabel = new JLabel(image);
+        placeholder = new ImageIcon(scaledImage);  // transform it back
+        JLabel pictureLabel = new JLabel(placeholder);
+        displayPanel.add(temperature);
+        displayPanel.add(condition);
         displayPanel.add(pictureLabel);
 
 
@@ -171,43 +183,11 @@ public class GUIControl implements ActionListener
 
         if (text.equals("Submit"))
         {
-            // obtain the numerical value that the user typed into the text field
-            // (getTest() returns a string) and convert it to an int
-            String zipCode = weatherEntryField.getText();
-
-            WeatherNetworking api = new WeatherNetworking();
-            CurrentWeather currentWeather = api.parseCurrent(api.makeAPICallForForecast(zipCode));
-            double currentF = currentWeather.getCurrentF();
-            double currentC = currentWeather.getCurrentC();
-            String filePath = currentWeather.getFilePath();
-            String condition = currentWeather.getCondition();
-
-            System.out.println(filePath);
-
-
-
-            JLabel temperature = new JLabel("Temperature: " + currentC);
-            JLabel condition1 = new JLabel("Condition: " + condition);
-
-            URL imageURL = new URL(filePath);
-            BufferedImage image1 = ImageIO.read(imageURL);
-
-            ImageIcon image = new ImageIcon(image1);
-            Image imageData = image.getImage(); // transform it
-            Image scaledImage = imageData.getScaledInstance(100, 100, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
-            image = new ImageIcon(scaledImage);  // transform it back
-            JLabel pictureLabel = new JLabel(image);
-            displayPanel.add(temperature);
-            displayPanel.add(condition1);
-            displayPanel.add(pictureLabel);
-
-
-
-
-
-            displayPanel.invalidate();
-            displayPanel.validate();
-
+            try {
+                updateDisplayPanel();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
 
 
         }
@@ -220,4 +200,60 @@ public class GUIControl implements ActionListener
 
         }
     }
+
+    private void updateDisplayPanel() throws IOException {
+        // (getTest() returns a string) and convert it to an int
+        String zipCode = weatherEntryField.getText();
+
+        WeatherNetworking api = new WeatherNetworking();
+        CurrentWeather currentWeather = api.parseCurrent(api.makeAPICallForForecast(zipCode));
+        double currentF = currentWeather.getCurrentF();
+        double currentC = currentWeather.getCurrentC();
+        String filePath = currentWeather.getFilePath();
+        String condition1 = currentWeather.getCondition();
+
+        System.out.println(filePath);
+
+
+
+
+      temperature.setText("Temperature: " + currentC);
+      condition.setText("Condition: " + condition1);
+
+//        ImageIcon image = new ImageIcon(img);
+////        Image imageData = image.getImage(); // transform it
+////        Image scaledImage = imageData.getScaledInstance(100, 100, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+////        image = new ImageIcon(scaledImage);  // transform it back
+//        JLabel pictureLabel = new JLabel(image);
+
+
+
+
+
+//
+//        displayPanel.add(temperature);
+//        displayPanel.add(condition1);
+//       displayPanel.add(pictureLabel);
+//
+//
+//
+//
+//
+//        displayPanel.invalidate();
+//        displayPanel.validate();
+//
+//        displayPanel.updateUI();
+//
+
+    }
+
+    public void actionPerformed2(ActionEvent e) {
+        JCheckBox cb = (JCheckBox) e.getSource();
+        if (cb.isSelected()) {
+            // do something if check box is selected
+        } else {
+            // check box is unselected, do something else
+        }
+    }
+
 }
