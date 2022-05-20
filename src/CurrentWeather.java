@@ -1,9 +1,9 @@
 public class CurrentWeather
 {
-    private double currentF;
-    private double currentC;
-    private String filePath;
-    private String condition;
+    private final double currentF;
+    private final double currentC;
+    private final String filePath;
+    private final String condition;
 
     public CurrentWeather(double currentF, double currentC, String filePath, String condition)
     {
