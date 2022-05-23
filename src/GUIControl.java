@@ -52,7 +52,7 @@ public class GUIControl implements ActionListener, ItemListener {
         //middle panel with text field and buttons
         JPanel entryPanel = new JPanel(); // the panel is not visible in output
         JLabel zipCodeLabel = new JLabel("Enter Zip Code:");
-        weatherEntryField = new JTextField(7); // accepts up to 7 characters
+        weatherEntryField = new JTextField(20); // accepts up to 7 characters
         JButton submitButton = new JButton("Submit");
         JButton clearButton = new JButton("Clear");
          checkbox = new JCheckBox("Enable C");
@@ -103,8 +103,7 @@ public class GUIControl implements ActionListener, ItemListener {
 
         }
 
-        // if user clicked "Reset" button, set the text field back to empty string
-        // and load the Now Playing list again
+       //clears it
         else if (text.equals("Clear")) {
             weatherEntryField.setText("");
             temperature.setText("");
@@ -130,6 +129,8 @@ public class GUIControl implements ActionListener, ItemListener {
 
 
 System.out.println(checkbox.isSelected());
+
+
 if (checkbox.isSelected())
 {
     temperature.setText("Temperature: " + currentC + " C°");
